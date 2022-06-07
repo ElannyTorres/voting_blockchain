@@ -1,42 +1,88 @@
 import { Box } from '@mantine/core';
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+
+import '../../stylesheets/Ballot.css';
+import { Ballpen } from 'tabler-icons-react';
+import { Table, Group, Button } from '@mantine/core';
 
 const Ballot = (props) => {
   let { ballotName } = useParams();
 
-  useEffect(() => {
-    const init = async () => {
-      let voteCount = await window.contract.getVotes({
+  const [voteCount, setVoteCount] = useState(0);
+  const [pairCandidate, setPairCandidate] = useState('');
+  const [didParticipate, setDidParticipate] = useState('false');
+
+  const init = async () => {
+    let voteCountResponse = await window.contract.getVotes({
+      prompt: ballotName,
+    });
+    console.log(voteCountResponse);
+    if (voteCount[0] == -1) {
+      console.log('no existe votación');
+    } else {
+      let pairCandidateResponse = await window.contract.getCandidatePair({
         prompt: ballotName,
       });
-      console.log(voteCount);
-      if (voteCount[0] == -1) {
-        console.log('no existe votación');
-      } else {
-        let pairCandidate = await window.contract.getCandidatePair({
-          prompt: ballotName,
-        });
-        console.log(pairCandidate);
-        let didParticipate = await window.contract.didParticipate({
-          prompt: ballotName,
-          user: window.accountId,
-        });
+      console.log(pairCandidateResponse);
 
-        console.log(didParticipate);
-      }
-    };
+      let didParticipateResponse = await window.contract.didParticipate({
+        prompt: ballotName,
+        user: window.accountId,
+      });
+      console.log(didParticipateResponse);
+      setPairCandidate(pairCandidateResponse);
+      setDidParticipate(didParticipateResponse);
+    }
+    setVoteCount(voteCountResponse);
+  };
 
+  useEffect(() => {
     init();
   }, []);
 
+  const vote = () => {
+    console.log(didParticipate);
+    return didParticipate ? 'You already voted' : 'Vote';
+  };
+
+  vote();
+
   console.log(ballotName);
   return (
-    <>
+    <div className="container">
       <Box>
         <h1>{ballotName}</h1>
+        <Table>
+          <thead>
+            <th>{pairCandidate[0]}</th>
+            <th>{pairCandidate[1]}</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{voteCount[0]}</td>
+              <td>{voteCount[1]}</td>
+            </tr>
+          </tbody>
+        </Table>
+        <Button
+          style={{
+            marginTop: '2em',
+          }}
+          disabled={didParticipate}
+          leftIcon={<Ballpen size={18} />}
+          onClick={() => {
+            console.log('votando');
+          }}
+        >
+          {vote()}
+        </Button>
       </Box>
-      <div className="btn">
+      <Group
+        style={{
+          marginTop: '2em',
+        }}
+      >
         <Box
           sx={(theme) => ({
             backgroundColor:
@@ -81,8 +127,8 @@ const Ballot = (props) => {
         >
           <Link to={'/'}>Back to Home</Link>
         </Box>
-      </div>
-    </>
+      </Group>
+    </div>
   );
 };
 

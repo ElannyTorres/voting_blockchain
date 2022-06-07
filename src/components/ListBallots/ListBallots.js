@@ -41,7 +41,7 @@ const ListBallots = (props) => {
           borderRadius: theme.radius.md,
           cursor: 'pointer',
           minWidth: '10em',
-          'margin-top': '2em',
+          marginTop: '2em',
 
           '&:hover': {
             backgroundColor:
