@@ -1,6 +1,6 @@
 import { Box, Button, Group, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 
 import { Link } from 'react-router-dom';
 
@@ -19,6 +19,17 @@ const NewBallot = (props) => {
         values.ballotName === undefined ? 'Ballot Name is required' : null,
     }), */
   });
+
+  const [created, setCreated] = useState(false)
+
+  useEffect(() => {
+
+    if (created) {
+      setCreated(false)
+      // cerrar el alert y abrir nuevo alert
+      Swal.close()
+    }
+  }, [created])
 
   const createBallot = async (values) => {
     console.log(values.candidate1);
@@ -44,11 +55,12 @@ const NewBallot = (props) => {
   const loading = (values) => {
     Swal.fire({
       title: 'Creating. It can take a moment.',
-      didOpen: () => {
+      didOpen: async () => {
         Swal.showLoading();
-        createBallot(values);
+        const success = await createBallot(values);
+        setCreated(success)
       },
-      willClose: () => {},
+
     });
   };
 
