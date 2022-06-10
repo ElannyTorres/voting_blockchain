@@ -10,9 +10,9 @@ import { Table, Group, Button } from '@mantine/core';
 const Ballot = (props) => {
   let { ballotName } = useParams();
 
-  const [voteCount, setVoteCount] = useState(0);
+  const [voteCount, setVoteCount] = useState(0);  // [ 0 ,  0] si existe , sino [ -1, -1 ]
   const [pairCandidate, setPairCandidate] = useState('');
-  const [didParticipate, setDidParticipate] = useState('false');
+  const [didParticipate, setDidParticipate] = useState(false);
 
   const init = async () => {
     let voteCountResponse = await window.contract.getVotes({
@@ -29,6 +29,7 @@ const Ballot = (props) => {
         prompt: ballotName,
         user: window.accountId,
       });
+      console.log(didParticipateResponse)
       setPairCandidate(pairCandidateResponse);
       setDidParticipate(didParticipateResponse);
     }
@@ -37,11 +38,40 @@ const Ballot = (props) => {
 
   useEffect(() => {
     init();
-  }, [voteCount]);
+  }, []);
+
+  const [created, setCreated] = useState(false)
+
+  useEffect(() => {
+
+    if (created) {
+      setCreated(false)
+      // cerrar el alert y abrir nuevo alert
+      Swal.close()
+    }
+  }, [created])
 
   const vote = () => {
     return didParticipate ? 'You already voted' : 'Vote';
   };
+
+  const loading = async (index) => {
+    Swal.fire({
+      title: 'Creating. It can take a moment.',
+      didOpen: async () => {
+        Swal.showLoading();
+        const success = await recordVote(index);
+        setCreated(success)
+      },
+
+    });
+  };
+
+  const recordVote = async (index) => {
+    await window.contract.addVote({prompt: ballotName, index: index})
+    await window.contract.recordUser({prompt: ballotName, user: window.accountId})
+    return true
+  }
 
   const voting = () => {
     const swalWithMaintainceButtons = Swal.mixin({
@@ -64,23 +94,25 @@ const Ballot = (props) => {
         denyButtonText: `${pairCandidate[1]}`,
         cancelButtonText: 'Cancel',
       })
-      .then((result) => {
+      .then(async (result) => {
         if (result.isConfirmed) {
-          swalWithMaintainceButtons.fire({
-            text: `You voted for ${pairCandidate[0]}`,
-            icon: 'success',
-          });
+          await loading(0)
+          
           console.log('se voto por ' + pairCandidate[0]);
-          setVoteCount(voteCount + 1);
-          console.log(voteCount);
+          let tmp = voteCount
+          tmp[0]= tmp[0]+1
+          setVoteCount(tmp);
+          console.log(tmp);
         } else if (result.dismiss === Swal.DismissReason.deny) {
-          swalWithMaintainceButtons.fire({
-            text: `You voted for ${pairCandidate[1]}`,
-            icon: 'success',
-          });
+          await loading(1)
+          
           console.log('se voto por ' + pairCandidate[1]);
-          console.log(voteCount[1] + 1);
+          let tmp = voteCount
+          tmp[1]= tmp[1]+1
+          setVoteCount(tmp);
+          console.log(tmp);
         }
+        setDidParticipate(true)
       });
   };
 
@@ -117,7 +149,7 @@ const Ballot = (props) => {
             voting();
           }}
         >
-          {vote(pairCandidate[0])}
+          {vote()}
         </Button>
       </Box>
       <Group

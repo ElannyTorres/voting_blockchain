@@ -28,6 +28,13 @@ const NewBallot = (props) => {
       setCreated(false)
       // cerrar el alert y abrir nuevo alert
       Swal.close()
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        text: 'The ballot has been created',
+        showConfirmButton: false,
+        timer: 1500
+      })
     }
   }, [created])
 
