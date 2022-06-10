@@ -43,6 +43,7 @@
     "react-dom": "~17.0.1",
     "react-router-dom": "^6.3.0",
     "regenerator-runtime": "~0.13.5",
+    "sweetalert2": "^11.4.17",
     "tabler-icons-react": "^1.48.0"
   },
   "resolutions": {

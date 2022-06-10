@@ -1,8 +1,8 @@
-import { Box, List, Table } from '@mantine/core';
+import { Box, List } from '@mantine/core';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Paperclip } from 'tabler-icons-react';
+import { Bookmark } from 'tabler-icons-react';
 
 const ListBallots = (props) => {
   const [ballots, setBallots] = useState([]);
@@ -21,11 +21,28 @@ const ListBallots = (props) => {
     <>
       <h1>Ballot(s) List</h1>
       <p>If you want more information please click.</p>
-      <Box>
-        <List center icon={<Paperclip />}>
+      <Box
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '1rem',
+          padding: '0.5rem',
+          minWidth: '10rem',
+          color: 'black',
+        }}
+      >
+        <List
+          center
+          icon={<Bookmark size={20} strokeWidth={2} color={'black'} />}
+        >
           {ballots.map((val, i) => (
-            <Link key={i} to={'/list/' + val}>
-              <List.Item key={i}>{val}</List.Item>
+            <Link
+              key={i}
+              to={'/list/' + val}
+              style={{ textDecoration: 'none' }}
+            >
+              <List.Item key={i} style={{ padding: '0.2rem' }}>
+                {val}
+              </List.Item>
             </Link>
           ))}
         </List>

@@ -2,7 +2,8 @@ import { Box } from '@mantine/core';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import '../../stylesheets/Ballot.css';
+import Swal from 'sweetalert2';
+
 import { Ballpen } from 'tabler-icons-react';
 import { Table, Group, Button } from '@mantine/core';
 
@@ -17,20 +18,17 @@ const Ballot = (props) => {
     let voteCountResponse = await window.contract.getVotes({
       prompt: ballotName,
     });
-    console.log(voteCountResponse);
     if (voteCount[0] == -1) {
       console.log('no existe votación');
     } else {
       let pairCandidateResponse = await window.contract.getCandidatePair({
         prompt: ballotName,
       });
-      console.log(pairCandidateResponse);
 
       let didParticipateResponse = await window.contract.didParticipate({
         prompt: ballotName,
         user: window.accountId,
       });
-      console.log(didParticipateResponse);
       setPairCandidate(pairCandidateResponse);
       setDidParticipate(didParticipateResponse);
     }
@@ -39,24 +37,67 @@ const Ballot = (props) => {
 
   useEffect(() => {
     init();
-  }, []);
+  }, [voteCount]);
 
   const vote = () => {
-    console.log(didParticipate);
     return didParticipate ? 'You already voted' : 'Vote';
   };
 
-  vote();
+  const voting = () => {
+    const swalWithMaintainceButtons = Swal.mixin({
+      customClass: {
+        cancelButton: 'btn btn-danger',
+        confirmButton: 'btn btn-success',
+      },
+      buttonsStyling: true,
+    });
 
-  console.log(ballotName);
+    swalWithMaintainceButtons
+      .fire({
+        title: 'Choose a candidate',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        reverseButtons: false,
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: `${pairCandidate[0]}`,
+        denyButtonText: `${pairCandidate[1]}`,
+        cancelButtonText: 'Cancel',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          swalWithMaintainceButtons.fire({
+            text: `You voted for ${pairCandidate[0]}`,
+            icon: 'success',
+          });
+          console.log('se voto por ' + pairCandidate[0]);
+          setVoteCount(voteCount + 1);
+          console.log(voteCount);
+        } else if (result.dismiss === Swal.DismissReason.deny) {
+          swalWithMaintainceButtons.fire({
+            text: `You voted for ${pairCandidate[1]}`,
+            icon: 'success',
+          });
+          console.log('se voto por ' + pairCandidate[1]);
+          console.log(voteCount[1] + 1);
+        }
+      });
+  };
+
   return (
-    <div className="container">
+    <div className="container" style={{ textAlign: 'center' }}>
       <Box>
         <h1>{ballotName}</h1>
-        <Table>
+        <Table
+          style={{
+            textAlign: 'center',
+          }}
+        >
           <thead>
-            <th>{pairCandidate[0]}</th>
-            <th>{pairCandidate[1]}</th>
+            <tr>
+              <th style={{ textAlign: 'center' }}>{pairCandidate[0]}</th>
+              <th style={{ textAlign: 'center' }}>{pairCandidate[1]}</th>
+            </tr>
           </thead>
           <tbody>
             <tr>
@@ -73,9 +114,10 @@ const Ballot = (props) => {
           leftIcon={<Ballpen size={18} />}
           onClick={() => {
             console.log('votando');
+            voting();
           }}
         >
-          {vote()}
+          {vote(pairCandidate[0])}
         </Button>
       </Box>
       <Group

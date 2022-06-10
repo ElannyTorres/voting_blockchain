@@ -13,6 +13,8 @@ import NewBallot from './components/NewBallot/NewBallot';
 import ListBallots from './components/ListBallots/ListBallots';
 import Ballot from './components/Ballot/Ballot';
 
+import Logo from './img/Vote+.png';
+
 const { networkId } = getConfig(process.env.NODE_ENV || 'development');
 
 export default function App() {
@@ -23,16 +25,40 @@ export default function App() {
   return (
     <AppShell
       style={{
-        marginTop: '0.5em',
+        paddingTop: '0.5em',
         position: 'fixed',
+        backgroundColor: '#373F51',
+        color: '#FFEAEE',
+        position: 'fixed',
+        zIndex: '1000',
+        height: '100vh',
       }}
       header={
         <Grid columns={12} justify="space-between" align="center">
-          <Grid.Col span={3} style={{ textAlign: 'center' }}>
-            LOGO
+          <Grid.Col
+            span={3}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <img
+              src={Logo}
+              alt="Logo.png"
+              style={{
+                borderRadius: '50%',
+                height: '2rem',
+                marginRight: '0.5rem',
+              }}
+            ></img>
+            <strong>Vote+</strong>
           </Grid.Col>
 
-          <Grid.Col span={3} style={{ textAlign: 'center' }}>
+          <Grid.Col
+            span={3}
+            style={{ textAlign: 'center', marginBottom: '0.5rem' }}
+          >
             <Button leftIcon={<Logout size={14} />} onClick={logout}>
               Log out
             </Button>

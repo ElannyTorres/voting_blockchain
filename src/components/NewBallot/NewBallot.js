@@ -5,6 +5,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import '../../stylesheets/BallotForm.css';
+import Swal from 'sweetalert2';
 
 const NewBallot = (props) => {
   const form = useForm({
@@ -36,14 +37,26 @@ const NewBallot = (props) => {
       index: 0,
     });
 
-    alert('Votación registrada con éxito');
+    console.log('ballot creada');
+    return true;
+  };
+
+  const loading = (values) => {
+    Swal.fire({
+      title: 'Creating. It can take a moment.',
+      didOpen: () => {
+        Swal.showLoading();
+        createBallot(values);
+      },
+      willClose: () => {},
+    });
   };
 
   return (
     <>
       <h2>Fill the blanks with the required information</h2>
       <Box className="ballotForm">
-        <form onSubmit={form.onSubmit((values) => createBallot(values))}>
+        <form onSubmit={form.onSubmit((values) => loading(values))}>
           <TextInput
             label="Nombre de la votación"
             {...form.getInputProps('ballotName')}
